@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="BinnenBeter: de voorwaarden van gemeentelijke parkeergarages, wijkstallingen en fietsenstallingen in gewone taal. Prototype van team Makers, afdeling Parkeren.">
+<meta name="theme-color" content="#00811f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2300811f'/%3E%3Ctext x='16' y='23' font-family='Arial' font-weight='700' font-size='20' text-anchor='middle' fill='white'%3EP%3C/text%3E%3C/svg%3E">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>BinnenBeter</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: één kolom, groene kop, tegels → onderwerp → meer uitleg. Mobile first. */
+:root{
+  --groen:#00811f; --groen-donker:#00661a; --groen-zacht:#e6f2e9;
+  --bg:#ffffff; --vlak:#f4f6f4; --fg:#1d2420; --fg-zacht:#55605a; --lijn:#d9e0db;
+  --let-op:#fff4d6; --let-op-fg:#6b4e00;
+  --font:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --groen:#3fb860; --groen-donker:#2f9a4d; --groen-zacht:#16301e;
+  --bg:#121614; --vlak:#1b211e; --fg:#e8ede9; --fg-zacht:#a6b2ab; --lijn:#2e3832;
+  --let-op:#3a3016; --let-op-fg:#f2d78a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --groen:#3fb860; --groen-donker:#2f9a4d; --groen-zacht:#16301e;
+  --bg:#121614; --vlak:#1b211e; --fg:#e8ede9; --fg-zacht:#a6b2ab; --lijn:#2e3832;
+  --let-op:#3a3016; --let-op-fg:#f2d78a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:17px;line-height:1.5;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:#00811f}
+.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{background:#00811f;color:#fff;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+header .wrap{padding-block:12px;display:flex;align-items:center;gap:12px}
+.logo{width:36px;height:36px;border-radius:8px;background:#fff;color:#00811f;display:grid;place-items:center;font-weight:800;font-size:24px;flex:none}
+.kop{min-width:0}
+.kop b{display:block;font-size:19px;line-height:1.2}
+.kop span{font-size:14px;opacity:.9}
+.terug{margin-left:auto;background:rgba(255,255,255,.18);color:#fff;border:0;border-radius:10px;font:inherit;font-weight:600;padding:10px 14px;min-height:44px;cursor:pointer}
+.terug:focus-visible,button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #ffbf00;outline-offset:2px}
+main .wrap{padding-block:16px 96px;display:flex;flex-direction:column;gap:20px}
+h1{font-size:26px;line-height:1.2;margin:0;text-wrap:balance}
+h2{font-size:20px;margin:0;text-wrap:balance}
+p{margin:0}
+.zoek{position:relative}
+.zoek input{width:100%;font:inherit;font-size:18px;padding:14px 16px;min-height:52px;border:2px solid var(--lijn);border-radius:12px;background:var(--bg);color:var(--fg)}
+.zoek input:focus{border-color:var(--groen);outline:none}
+.tegels{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tegel{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;background:var(--vlak);border:1px solid var(--lijn);border-radius:14px;padding:14px;min-height:112px;font:inherit;color:var(--fg);cursor:pointer}
+.tegel:hover{border-color:var(--groen)}
+.tegel svg{width:32px;height:32px;color:var(--groen);flex:none}
+.tegel b{font-size:16px;line-height:1.25}
+.sectie{display:flex;flex-direction:column;gap:10px}
+.label{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-zacht)}
+.vraag{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:left;background:var(--bg);border:1px solid var(--lijn);border-radius:12px;padding:14px 16px;min-height:52px;font:inherit;font-weight:600;color:var(--fg);cursor:pointer}
+.vraag::after{content:"›";font-size:24px;color:var(--groen)}
+.kort{font-size:20px;line-height:1.45;font-weight:600}
+.beeld{background:#fff;border:1px solid var(--lijn);border-radius:16px;overflow:hidden;max-width:100%}
+.beeld img{display:block;width:100%;height:auto}
+.stappen{margin:0;padding:0;list-style:none;counter-reset:stap;display:flex;flex-direction:column;gap:10px}
+.stappen li{counter-increment:stap;display:grid;grid-template-columns:32px 1fr;gap:10px;align-items:start}
+.stappen li::before{content:counter(stap);width:32px;height:32px;border-radius:50%;background:var(--groen);color:#fff;font-weight:700;display:grid;place-items:center}
+.letop{background:var(--let-op);color:var(--let-op-fg);border-radius:14px;padding:12px 16px;display:flex;flex-direction:column;gap:6px}
+.letop ul{margin:0;padding-left:20px}
+.tegel .duim{width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:8px;background:#fff}
+.klant{background:var(--groen-zacht);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.klant .label{color:var(--groen-donker)}
+:root[data-theme="dark"] .klant .label{color:var(--groen)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .klant .label{color:var(--groen)}}
+.klant p{font-style:italic}
+ul.punten{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.meer{background:var(--groen);color:#fff;border:0;border-radius:12px;font:inherit;font-weight:700;padding:14px;min-height:52px;cursor:pointer}
+.bron{border-top:1px solid var(--lijn);padding-top:14px;font-size:15px;color:var(--fg-zacht);display:flex;flex-direction:column;gap:8px}
+.bron a{color:var(--groen);font-weight:600}
+.disclaimer{background:var(--let-op);color:var(--let-op-fg);border-radius:12px;padding:12px 14px;font-size:15px}
+.leeg{color:var(--fg-zacht)}
+mark{background:var(--let-op);color:inherit;border-radius:3px}
+.voet{font-size:14px;color:var(--fg-zacht)}
+.soorten{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.soort{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--vlak);border:2px solid var(--lijn);border-radius:12px;padding:10px 6px;min-height:72px;font:inherit;font-size:14px;font-weight:600;color:var(--fg);cursor:pointer;text-align:center}
+.soort svg{width:26px;height:26px;color:var(--groen)}
+.soort[aria-selected="true"]{border-color:var(--groen);background:var(--groen-zacht)}
+.soortlabel{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--groen-donker);background:var(--groen-zacht);border-radius:6px;padding:1px 6px;margin-right:6px}
+details{border:1px solid var(--lijn);border-radius:12px;padding:12px 16px;background:var(--bg)}
+details summary{font-weight:700;cursor:pointer;min-height:28px;color:var(--groen-donker)}
+details dl{margin:10px 0 0;display:grid;gap:4px}
+details dt{font-weight:700;margin-top:6px}
+details dd{margin:0;color:var(--fg)}
+details a{color:var(--groen);font-weight:600}
+.kopieer{font-weight:700;user-select:all}
+.termijnen{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.termijnen li{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:start;border-bottom:1px solid var(--lijn);padding-bottom:8px}
+.termijnen .getal{font-size:20px;font-weight:800;color:var(--groen);font-variant-numeric:tabular-nums}
+.termijnen small{color:var(--fg-zacht)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) details summary,:root:not([data-theme="light"]) .soortlabel{color:var(--groen)}}
+:root[data-theme="dark"] details summary,:root[data-theme="dark"] .soortlabel{color:var(--groen)}
+.beta-knop{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;display:flex;align-items:center;gap:8px;background:var(--fg);color:var(--bg);text-decoration:none;font-weight:700;border-radius:999px;padding:12px 18px;min-height:48px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.beta-knop svg{width:20px;height:20px;color:#ffbf00}
+.beta-knop span{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;background:#ffbf00;color:#1d2420;border-radius:6px;padding:1px 6px}
+.beta-tegel small{color:var(--fg-zacht);font-size:14px;line-height:1.35}
+.mock{position:relative;border:2px dashed var(--groen);border-radius:18px;padding:30px 14px 14px;background:var(--vlak)}
+.mock::before{content:"Voorbeeld · niet echt";position:absolute;top:-1px;left:14px;transform:translateY(-50%);background:#ffbf00;color:#1d2420;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;border-radius:6px;padding:2px 8px}
+.mock small{color:var(--fg-zacht)}
+.m-bericht,.m-brief,.m-contact,.m-taal,.m-form,.m-loc{background:var(--bg);border:1px solid var(--lijn);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.m-kop{display:flex;gap:10px;align-items:center}
+.m-avatar{width:40px;height:40px;border-radius:50%;background:var(--groen);color:#fff;display:grid;place-items:center;font-weight:800;flex:none}
+.m-knop{align-self:flex-start;background:var(--groen);color:#fff;border:0;border-radius:10px;font:inherit;font-weight:700;padding:10px 16px;min-height:44px;cursor:pointer}
+.m-nieuws{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.m-nieuws li{background:var(--bg);border:1px solid var(--lijn);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:2px}
+.m-tag{align-self:flex-start;font-size:12px;font-weight:700;color:var(--groen-donker);background:var(--groen-zacht);border-radius:6px;padding:1px 6px}
+.m-form label{font-weight:700;font-size:15px}
+.m-form select,.m-form textarea{font:inherit;padding:10px;border:1px solid var(--lijn);border-radius:10px;background:var(--bg);color:var(--fg);width:100%}
+.m-chips{display:flex;flex-wrap:wrap;gap:6px}
+.m-chip{border:1px solid var(--lijn);border-radius:999px;padding:6px 12px;font-size:15px;cursor:pointer;background:var(--bg)}
+.m-chip.aan{background:var(--groen);border-color:var(--groen);color:#fff}
+.m-foto{border:1px dashed var(--lijn);border-radius:10px;padding:12px;text-align:center;color:var(--fg-zacht)}
+.m-schoon{display:flex;flex-direction:column;gap:10px}
+.m-rij{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.m-niv{font-size:13px;font-weight:800;border-radius:6px;padding:2px 8px}
+.niv-A{background:#e5f4e4;color:#1d6b2a}.niv-B{background:#f9eeda;color:#7a5600}.niv-C{background:#fbebeb;color:#9b2222}
+.m-bars{display:flex;align-items:flex-end;gap:6px;height:56px;border-bottom:1px solid var(--lijn)}
+.m-bars span{flex:1;background:var(--groen);border-radius:4px 4px 0 0;opacity:.85}
+.m-bars span:last-child{opacity:1}
+.m-contact ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.m-contact li{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--lijn);padding-bottom:6px}
+.m-brief{border-left:4px solid #ffbf00}
+.m-toggle{display:flex;align-self:flex-start;border:1px solid var(--lijn);border-radius:999px;overflow:hidden}
+.m-toggle span{padding:6px 14px;font-weight:700}.m-toggle .aan{background:var(--groen);color:#fff}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(80px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:12px 16px;border-radius:12px;z-index:30;font-weight:600;max-width:calc(100% - 32px)}
+@media (min-width:560px){.tegels{grid-template-columns:repeat(3,1fr)}.soorten{grid-template-columns:repeat(4,1fr)}}
+@media (prefers-reduced-motion:no-preference){.tegel,.vraag{transition:border-color .15s}}
+</style>
+</head>
+<body>
+
+
+<header><div class="wrap">
+  <div class="logo" aria-hidden="true">P</div>
+  <div class="kop"><b>BinnenBeter</b><span>Garage- en stallingsregels · Parkeren</span></div>
+  <button class="terug" id="terug" hidden>Terug</button>
+</div></header>
+<main><div class="wrap" id="app"></div></main>
+<a class="beta-knop" href="#beta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6 M10 21h4 M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>Ideeën <span>beta</span></a>
+
+<script>
+const BRON="https://www.rotterdam.nl/media/3759";
+const PAGINA="https://www.rotterdam.nl/openbare-parkeergarages";
+const I={ // eenvoudige iconen, later vervangen door illustraties
+ doc:'<path d="M7 3h7l5 5v13H7z M14 3v5h5 M10 13h6 M10 17h6"/>',
+ auto:'<path d="M4 15l2-6h12l2 6v4H4z M7 19v2 M17 19v2 M4 15h16"/><circle cx="8" cy="16.5" r="1"/><circle cx="16" cy="16.5" r="1"/>',
+ regels:'<circle cx="12" cy="12" r="8"/><path d="M9 13.5h6 M10.5 9.5h3v4"/>',
+ slagboom:'<path d="M4 20V8 M4 10h16 M3 20h3"/><rect x="2.5" y="6" width="3" height="4"/>',
+ euro:'<circle cx="12" cy="12" r="8"/><path d="M15 9a3.5 3.5 0 1 0 0 6 M8 11h5 M8 13h5"/>',
+ verbod:'<circle cx="12" cy="12" r="8"/><path d="M6.5 6.5l11 11"/>',
+ stappen:'<path d="M4 18h4v-4h4v-4h4V6h4"/>',
+ klem:'<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 5v4.5 M12 14.5V19 M5 12h4.5 M14.5 12H19"/>',
+ schild:'<path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z M9 9l6 6 M15 9l-6 6"/>',
+ camera:'<rect x="3" y="8" width="13" height="9" rx="2"/><path d="M16 11l5-3v9l-5-3"/>',
+ weegschaal:'<path d="M12 4v16 M7 20h10 M5 8h14 M5 8l-2 6h4z M19 8l-2 6h4z"/>',
+ fiets:'<circle cx="6" cy="16" r="3.5"/><circle cx="18" cy="16" r="3.5"/><path d="M6 16l4-7h6l2 7 M10 9l3 7h-7 M14 6h3"/>',
+ sleutel:'<circle cx="8" cy="12" r="4"/><path d="M12 12h9 M18 12v3 M21 12v2"/>',
+ lijst:'<path d="M9 6h11 M9 12h11 M9 18h11 M4 6h1 M4 12h1 M4 18h1"/>',
+ huis:'<path d="M4 11l8-6 8 6v9H4z M9 20v-5h6v5"/>'
+};
+const svg=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]}</svg>`;
+
+const T=[
+{id:"wanneer",titel:"Wanneer gelden de regels?",icon:"doc",art:"Artikel 1 en 2",
+ kort:"De regels gelden voor iedereen die in een gemeentelijke garage parkeert. Ook voor mensen met een abonnement.",
+ klant:"Zodra u hier parkeert, gelden onze algemene voorwaarden. Die hangen bij de ingang en staan op rotterdam.nl.",
+ meer:["Er zijn twee soorten klanten: de bezoeker (parkeerder) en de vaste klant met abonnement (abonnementhouder).","Bij een abonnement gaat het contract voor, als daar iets anders in staat.","Een andere afspraak geldt alleen als die op papier staat en getekend is door iemand van de gemeente die dat mag.","De gemeente mag de regels altijd veranderen. De nieuwe regels gelden dan ook voor mensen die al klant zijn."],
+ woorden:"voorwaarden regels abonnement abonnementhouder parkeerder bezoeker contract wijzigen"},
+{id:"overeenkomst",titel:"Begin en einde van het parkeren",icon:"auto",art:"Artikel 3",
+ kort:"Het parkeren begint als de auto in de garage staat. Het stopt als je betaald hebt en weg bent gereden.",
+ klant:"U heeft recht op een vrije plek, niet op een vaste plek. Pak gewoon een plek die vrij is.",
+ meer:["Je mag alleen naar binnen met een geldige pas of kaart, en alleen als de garage open is.","Een abonnement is persoonlijk. Je mag het niet aan iemand anders geven, verhuren of uitlenen.","Een abonnementhouder rijdt alleen met kentekens die de gemeente kent. Een nieuw kenteken geef je meteen door.","Iedereen heeft recht op één willekeurige plek. Er is geen vaste plek."],
+ woorden:"begin einde pas kaart toegangsmiddel openingstijden kenteken vaste plek uitlenen verhuren"},
+{id:"rijden",titel:"Rijden en parkeren in de garage",icon:"regels",art:"Artikel 4",
+ kort:"Rij niet harder dan 15 km per uur. Voetgangers gaan altijd voor.",
+ klant:"Wilt u iets rustiger rijden? Hier mag u maximaal 15 kilometer per uur, en voetgangers gaan voor.",
+ meer:["Parkeer in één vak en volg de pijlen.","Doe wat het personeel van de gemeente zegt.","Hinder anderen niet en zorg dat het veilig blijft.","Doe je auto goed op slot.","De gewone verkeersregels gelden ook in de garage."],
+ woorden:"snelheid 15 km voetganger voorrang rijrichting pijlen personeel slot veilig"},
+{id:"toegang",titel:"Wie mag erin, en verplaatsen",icon:"slagboom",art:"Artikel 5",
+ kort:"Alleen personenauto's en vergelijkbare voertuigen mogen erin. Niet hoger dan het bord bij de ingang.",
+ klant:"Uw auto is te hoog voor deze garage. Dat staat op het bord bij de ingang.",
+ meer:["De gemeente bepaalt de openingstijden. Die staan bij de garage.","Per garage bepaalt de gemeente of brommers, scooters en motoren mogen.","De gemeente mag een voertuig weigeren, bijvoorbeeld met gevaarlijke stoffen of als het schade kan geven.","Als het nodig is, mag de gemeente een auto verplaatsen of weghalen. Dat gebeurt op een redelijke manier."],
+ woorden:"hoogte busje motor scooter brommer weigeren verplaatsen weghalen openingstijden"},
+{id:"betalen",titel:"Tarief en betalen",icon:"euro",art:"Artikel 6",
+ kort:"Je betaalt voordat je wegrijdt. Wie wegrijdt zonder te betalen, krijgt een boete van 300 euro.",
+ klant:"Heeft u uw parkeerkaart niet meer? Dan betaalt u voor de tijd dat u hier stond. Weten we die tijd niet, dan betaalt u het dagtarief.",
+ meer:["De tarieven staan in het Tarievenbesluit. Dat wordt elk jaar opnieuw vastgesteld.","Geen geldig parkeerbewijs: je betaalt voor de tijd dat je er stond.","Is die tijd niet te vinden: je betaalt het maximale dagtarief, voor elke dag dat je er volgens de gemeente stond.","Weggereden zonder betalen: 300 euro boete plus het dagtarief. Waren de echte kosten hoger, dan betaal je die. Ook schade en kosten van een rechtszaak kunnen erbij komen.","Een abonnement betaal je zoals afgesproken. Staat er niets, dan per maand."],
+ woorden:"betalen tarief prijs kaart kwijt parkeerbewijs dagtarief boete 300 niet betaald abonnement"},
+{id:"verboden",titel:"Wat mag niet?",icon:"verbod",art:"Artikel 7",
+ kort:"In de garage mag je niet roken, geen caravan parkeren en niet langer dan 28 dagen staan.",
+ klant:"Een aanhanger of caravan mag hier helaas niet staan. Dat staat in onze voorwaarden.",
+ meer:["Geen aanhangers of caravans.","Niet met de hand de slagboom openen of apparaten verkeerd gebruiken.","Geen schade maken.","Geen gevaarlijke stoffen, behalve brandstof in de tank.","Geen alcohol of drugs gebruiken of verkopen.","Geen reclame maken.","Geen afval of lekkende olie achterlaten.","Niet roken en geen vuur maken.","Geen auto's of spullen verkopen of verhuren.","Niet repareren aan je auto, tenzij de gemeente het goed vindt.","Niet in de auto blijven zitten. Na het parkeren ga je de garage uit.","Niet langer dan 28 dagen achter elkaar parkeren, tenzij je schriftelijk toestemming hebt.","Niet op een speciale plek staan, zoals een invalideplek of laadplek, als die niet voor jou is.","Niet op meer dan één plek parkeren."],
+ woorden:"roken caravan aanhanger 28 dagen slagboom alcohol drugs reclame afval olie repareren slapen in auto invalideplek laadplek laadpaal twee plekken verkopen"},
+{id:"regelsbreken",titel:"Als iemand zich niet aan de regels houdt",icon:"stappen",art:"Artikel 8",
+ kort:"Bij ernstige overtredingen mag de gemeente het contract meteen stoppen, zonder waarschuwing.",
+ klant:"Uw auto staat hier te lang. Haalt u hem niet op, dan mag de gemeente hem na 14 dagen laten weghalen.",
+ meer:["Meteen stoppen mag bij: abonnement doorgeven aan een ander, verkeersregels breken, slagboom of apparaten misbruiken, schade, gevaarlijke stoffen, alcohol of drugs, en in de auto blijven.","Een abonnementhouder die een waarschuwing kreeg, mag er niet in tot het opgelost is. Daar krijgt hij geen geld voor terug.","Kosten van deurwaarder of rechtszaak betaalt de klant, behalve als de zaak onterecht was.","De gemeente mag de auto vasthouden, bijvoorbeeld met een wielklem, tot alles betaald is.","Achtergelaten auto: 14 dagen na een brief mag de gemeente hem laten weghalen. Is er geen adres, dan is een briefje op de auto genoeg.","Na 6 weken mag de gemeente de auto verkopen of vernietigen. De klant krijgt de opbrengst min de kosten. Is er een tekort, dan betaalt de klant dat."],
+ woorden:"overtreding waarschuwing ingebrekestelling deurwaarder achtergelaten weggehaald 14 dagen 6 weken verkopen vernietigen ontbinden"},
+{id:"wielklem",titel:"Wielklem",icon:"klem",art:"Artikel 9",
+ kort:"De gemeente mag een wielklem op een auto zetten als iemand de regels breekt of hinder geeft.",
+ klant:"Er zit een wielklem op uw auto omdat die op een plek staat die er niet voor bedoeld is. De kosten om hem eraf te halen zijn voor u.",
+ meer:["Bijvoorbeeld bij dubbel parkeren, op een verkeerde plek staan, schade of vandalisme.","De kosten voor het weghalen van de wielklem betaalt de eigenaar of parkeerder.","Hoe hoog die kosten zijn, staat in het Tarievenbesluit."],
+ woorden:"wielklem klem dubbel parkeren verkeerde plek kosten"},
+{id:"schade",titel:"Schade en diefstal",icon:"schild",art:"Artikel 10",
+ kort:"Er is geen bewaking. De gemeente betaalt niet bij diefstal of schade aan je spullen.",
+ klant:"Het spijt me voor u. De gemeente betaalt niet bij diefstal of schade in de garage. Doet u aangifte bij de politie, dan kunnen camerabeelden daarbij helpen.",
+ meer:["De klant betaalt zelf de schade die hij, zijn auto of zijn passagiers maken.","De gemeente betaalt niet voor letsel of andere schade door het gebruik van de garage.","Ook niet bij dingen die niet de schuld van de gemeente zijn, zoals een staking, brand, storing of een fout van een ander bedrijf.","De gemeente mag werk doen in de garage zonder daar iets voor te betalen.","Als de gemeente een auto moet verplaatsen, is ze niet aansprakelijk."],
+ woorden:"schade diefstal gestolen inbraak kras deuk letsel bewaking aansprakelijk vergoeding verzekering"},
+{id:"privacy",titel:"Camera's en kentekens",icon:"camera",art:"Artikel 11",
+ kort:"Er hangen camera's. Beelden bewaren we 7 dagen, kentekens 60 dagen.",
+ klant:"Ja, er hangen camera's. De beelden worden 7 dagen bewaard. Bij schade of diefstal geven we ze aan de politie.",
+ meer:["De gemeente houdt zich aan de privacywet (AVG).","Bij schade, vernieling, fraude, diefstal of een noodgeval gaan beelden naar de politie of naar wie de schade moet verhalen. Dan worden ze langer bewaard.","Het kenteken wordt gelezen om de parkeertijd en de prijs te bepalen.","Bij een incident bewaren we het kenteken zo lang als nodig is.","Meer staat in de privacyverklaring op rotterdam.nl."],
+ woorden:"camera beelden privacy avg kenteken bewaren 7 dagen 60 dagen politie"},
+{id:"geschil",titel:"Klacht of ruzie",icon:"weegschaal",art:"Artikel 12",
+ kort:"Komen klant en gemeente er niet uit? Dan beslist de rechter in Rotterdam. Het Nederlandse recht geldt.",
+ klant:"U kunt een brief sturen naar Gemeente Rotterdam, Stadsbeheer, afdeling Parkeren, 3004 BC Rotterdam.",
+ meer:["Het Nederlandse recht geldt.","Een geschil gaat alleen naar de rechter in Rotterdam.","Post over de voorwaarden: Gemeente Rotterdam, Stadsbeheer, t.a.v. afdeling Parkeren, 3004 BC Rotterdam."],
+ woorden:"klacht ruzie geschil rechter brief adres contact post"}
+];
+
+const SNEL=[
+ ["Klant is zijn parkeerkaart kwijt","betalen"],
+ ["Klant reed weg zonder te betalen","betalen"],
+ ["Er staat een caravan of aanhanger","verboden"],
+ ["Auto staat al weken in de garage","regelsbreken"],
+ ["Klant zegt dat zijn auto beschadigd is","schade"],
+ ["Klant vraagt naar de camera's","privacy"]
+];
+
+const tGet=id=>T.find(t=>t.id===id);
+const BRON_FIETS="https://www.rotterdam.nl/algemene-voorwaarden-fietsparkeren";
+const BRON_ABO="https://www.rotterdam.nl/abonnement-parkeergarage-of-parkeerterrein-aanvragen";
+const BRON_WIJK="https://www.rotterdam.nl/wijkstallingsgarages";
+
+// Wijkstallingsgarages: zelfde Algemene Voorwaarden 2024, maar alleen abonnementhouders
+const W=[
+{id:"voorwie",titel:"Voor wie is de garage?",icon:"huis",art:"Pagina wijkstallingsgarages en abonnement aanvragen",bron:BRON_ABO,
+ kort:"Een wijkstallingsgarage is voor vaste gebruikers met een abonnement. Bijvoorbeeld bewoners en bedrijven uit de buurt.",
+ klant:"Deze garage is alleen voor abonnementhouders. U kunt een abonnement aanvragen via rotterdam.nl. Is er geen plek, dan komt u op de wachtlijst.",
+ meer:["Bewoners en bedrijven uit de buurt kunnen een abonnement aanvragen. Is er plek over, dan kunnen ook anderen een abonnement krijgen.","Volgorde van de wachtlijst: eerst mensen uit de gebouwen bij de garage, dan uit de buurt, dan uit Rotterdam, dan van buiten Rotterdam.","Krijg je geen plek, dan kun je een abonnement nemen in een openbare parkeergarage.","Bedrijven kiezen tussen beperkt (ma t/m vr, 7 tot 19 uur) en onbeperkt (altijd)."],
+ woorden:"wie bewoner bedrijf buurt wachtlijst volgorde vaste gebruiker beperkt onbeperkt"},
+{id:"kosten",titel:"Wat kost een abonnement?",icon:"euro",art:"Pagina abonnement aanvragen (tarieven 2026)",bron:BRON_ABO,
+ kort:"Een bewoner betaalt in 2026 €36,40 per maand in een garage en €29,44 op een terrein.",
+ klant:"Voor bewoners kost een plek in deze garage €36,40 per maand. Voor bedrijven is het duurder. De actuele prijzen staan op rotterdam.nl.",
+ meer:["Bewoner: €36,40 per maand (garage) of €29,44 (terrein).","Bedrijf beperkt: €81,89 (garage) of €44,16 (terrein).","Bedrijf onbeperkt: €109,19 (garage) of €58,88 (terrein).","Voor een motor betaal je de helft, als de plek een motorplek is.","De prijzen veranderen elk jaar. Ze staan in het Tarievenbesluit.","Je betaalt zoals in je abonnement staat. Staat er niets, dan per maand (artikel 6)."],
+ woorden:"kosten prijs tarief betalen maand bewoner bedrijf motor 2026 36,40"},
+{id:"aanvragen",titel:"Aanvragen, wijzigen en opzeggen",icon:"lijst",art:"Pagina abonnement aanvragen",bron:BRON_ABO,
+ kort:"Aanvragen, wijzigen en opzeggen kan online met DigiD via Mijn Loket, of met een formulier per post. Opzeggen kan per maand.",
+ klant:"U kunt opzeggen via Mijn Loket op rotterdam.nl. De opzegtermijn is één maand en gaat in op de eerste dag van de maand.",
+ meer:["Online duurt het verwerken ongeveer 2 werkweken.","Per post duurt het ongeveer 4 werkweken na ontvangst.","De opzegtermijn is 1 maand. Die begint op de eerste dag van de maand.","Pas kwijt of kapot: vraag online een nieuwe pas aan via Mijn Loket, of per post met het formulier.","Vragen? Bel 14 010."],
+ woorden:"aanvragen wijzigen opzeggen opzegtermijn digid mijn loket formulier post pas kwijt nieuwe pas 14 010"},
+{...tGet("overeenkomst"),id:"persoonlijk",titel:"Het abonnement is persoonlijk",icon:"sleutel",
+ kort:"Je mag je abonnement niet uitlenen, verhuren of aan iemand anders geven. Een nieuw kenteken geef je meteen door.",
+ klant:"Uw abonnement is persoonlijk. U mag het niet doorgeven aan iemand anders. Heeft u een andere auto? Geef het nieuwe kenteken dan zo snel mogelijk door.",
+ meer:["Je mag alleen naar binnen met kentekens die de gemeente kent.","Nieuwe auto: geef het kenteken zo snel mogelijk door.","Je hebt recht op één willekeurige plek, geen vaste plek. Ook niet als je altijd op dezelfde plek staat.","Abonnement doorgeven aan een ander mag niet. De gemeente mag het abonnement dan meteen stoppen (artikel 8)."],
+ woorden:"persoonlijk uitlenen verhuren doorgeven kenteken nieuwe auto vaste plek eigen plek"},
+{...tGet("regelsbreken"),id:"toegang-geweigerd",titel:"Als je je niet aan de regels houdt",
+ kort:"Houdt een abonnementhouder zich niet aan de regels, dan mag hij er niet meer in tot het is opgelost. Hij krijgt daar geen geld voor terug.",
+ klant:"U heeft een waarschuwing gekregen. Tot dat is opgelost, kunt u de garage niet in. U krijgt daar geen geld voor terug, ook niet als u ergens anders moet parkeren."},
+tGet("rijden"),tGet("verboden"),tGet("wielklem"),tGet("schade"),tGet("privacy"),tGet("geschil")
+];
+const SNEL_W=[["Bewoner vraagt hoe hij een plek krijgt","voorwie"],["Iemand wil zijn abonnement opzeggen","aanvragen"],["Abonnementhouder heeft een nieuwe auto","persoonlijk"],["Klant wil een vaste plek","persoonlijk"],["Iemand leent zijn pas uit aan de buren","persoonlijk"],["Klant vraagt wat het kost","kosten"]];
+
+// Fietsenstallingen: Algemene Stallingsvoorwaarden fietsparkeren
+const F=[
+{id:"wanneer",titel:"Wanneer gelden de regels?",icon:"doc",art:"Artikel 1 en 2",
+ kort:"De regels gelden in alle fietsenstallingen van de gemeente. Voor fietsen, bakfietsen en brommers.",
+ klant:"In deze stalling gelden de stallingsvoorwaarden van de gemeente. U vindt ze op rotterdam.nl/fietsparkeren.",
+ meer:["De regels gelden in openbare stallingen en in stallingen die alleen voor abonnementhouders zijn.","Ze gelden voor wie los stalt (staller) en voor wie een abonnement heeft.","Een andere afspraak geldt alleen als die op papier staat en getekend is.","De gemeente mag de regels altijd veranderen, ook voor wie al klant is."],
+ woorden:"voorwaarden regels fiets bakfiets brommer staller abonnement buurtstalling fietstrommel"},
+{id:"stallen",titel:"Stallen in de stalling",icon:"fiets",art:"Artikel 3 en 4",
+ kort:"Zet je fiets in een rek of vak en doe hem op slot. Je hebt recht op een vrije plek, niet op een vaste plek.",
+ klant:"Wilt u uw fiets in een rek zetten en op slot doen? U mag elke vrije plek gebruiken.",
+ meer:["Het stallen begint zodra de fiets in de stalling staat.","Een abonnement begint op de datum in de overeenkomst.","De stalling is alleen om je fiets te stallen, niet voor iets anders.","Volg de aanwijzingen op, sta niemand in de weg en houd het veilig.","De gemeente bewaakt je fiets niet."],
+ woorden:"stallen rek vak slot plek vaste plek bewaking"},
+{id:"28dagen",titel:"Maximaal 28 dagen",icon:"verbod",art:"Artikel 5",
+ kort:"In een openbare stalling mag een fiets maximaal 28 dagen achter elkaar staan. Daarna mag de gemeente hem weghalen.",
+ klant:"Fietsen mogen hier maximaal 28 dagen staan. Daarna kan de gemeente ze weghalen. U kunt uw fiets dan ophalen bij het Fietspunt.",
+ meer:["Na 28 dagen mag de gemeente de fiets weghalen. De kosten zijn voor de eigenaar.","Ook als het nodig is, bijvoorbeeld bij werkzaamheden, mag de gemeente een fiets verplaatsen.","Meldt niemand zich binnen 3 maanden, dan mag de gemeente de fiets verkopen of vernietigen.","Termijnen voor ophalen staan op rotterdam.nl/fietspunt.","Abonnementhouders in een niet-openbare stalling hangen het bewijs van de gemeente zichtbaar aan hun fiets."],
+ woorden:"28 dagen weggehaald weghalen fietspunt ophalen verwijderd 3 maanden wrak verkopen sticker"},
+{id:"abonnement",titel:"Abonnement, betalen en opzeggen",icon:"euro",art:"Artikel 5 en 6, formulier opzegging",bron:BRON_FIETS,
+ kort:"Een abonnement is persoonlijk. Wie 14 dagen na de vervaldatum niet betaald heeft, kan de toegang verliezen.",
+ klant:"U kunt uw abonnement opzeggen met het opzegformulier. De opzegtermijn is één maand. Lever uw tag of sleutel op tijd in, anders betaalt u €50.",
+ meer:["Je mag je abonnement niet verhuren, uitlenen of doorgeven.","Je betaalt zoals in je abonnement staat. Staat er niets, dan per maand.","Niet betaald binnen 14 dagen na de vervaldatum: de gemeente mag de toegang weigeren.","Tag of sleutel kwijt of gestolen: je krijgt een nieuwe tegen het geldende tarief.","Na het einde van het abonnement lever je de tag of sleutel binnen 5 werkdagen in. Op het opzegformulier staat een boete van €50 als je dat niet doet.","Binnen 14 dagen na de start kun je het abonnement gratis stoppen (opzegformulier).","De opzegtermijn is 1 maand (opzegformulier)."],
+ woorden:"abonnement betalen opzeggen opzegtermijn tag sleutel kwijt inleveren 50 boete fietstrommel buurtstalling prijs"},
+{id:"regelsbreken",titel:"Als iemand zich niet aan de regels houdt",icon:"stappen",art:"Artikel 7",
+ kort:"Houdt iemand zich niet aan de regels, dan mag de gemeente hem de toegang meteen weigeren.",
+ klant:"Haalt u uw fiets niet binnen 14 dagen weg na ons verzoek, dan mag de gemeente hem verwijderen.",
+ meer:["De gemeente mag schade en kosten verhalen, zoals de kosten van een aanmaning of rechtszaak.","Na een duidelijk verzoek of een briefje op de fiets: is de fiets na 14 dagen niet weg, dan mag de gemeente hem weghalen en opslaan.","Wordt de fiets niet op tijd opgehaald, dan mag de gemeente hem verkopen of vernietigen."],
+ woorden:"overtreding toegang weigeren aanmaning verzoek briefje 14 dagen weghalen"},
+{id:"schade",titel:"Schade en diefstal",icon:"schild",art:"Artikel 8",
+ kort:"Er is geen bewaking. De gemeente betaalt niet bij diefstal of schade aan je fiets.",
+ klant:"Het spijt me voor u. De gemeente betaalt niet bij diefstal of schade in de stalling. U kunt aangifte doen bij de politie.",
+ meer:["De gemeente betaalt niet voor schade door het gebruik van de stalling.","Ook niet voor schade als de fiets verplaatst of weggehaald wordt.","Ook niet bij dingen buiten haar schuld, zoals staking, brand of maatregelen van de overheid.","Alleen bij grove schuld van de gemeente kan dat anders zijn.","Maakt jouw fiets schade, dan betaal jij die."],
+ woorden:"schade diefstal gestolen kapot band lek bewaking aansprakelijk vergoeding"},
+{id:"geschil",titel:"Klacht of ruzie",icon:"weegschaal",art:"Artikel 9",
+ kort:"Komen klant en gemeente er niet uit? Dan beslist de rechter in Rotterdam.",
+ klant:"U kunt een brief sturen naar Gemeente Rotterdam, Stadsbeheer, Afdeling Parkeervoorzieningen, Postbus 10902, 3004 BC Rotterdam.",
+ meer:["Het Nederlandse recht geldt.","Een geschil gaat naar de rechtbank in Rotterdam.","Over privacy staat niets in de stallingsvoorwaarden. Daarvoor is er een apart privacystatement fietsparkeren op rotterdam.nl."],
+ woorden:"klacht ruzie geschil rechter brief adres postbus privacy"}
+].map(t=>({bron:BRON_FIETS,...t}));
+const SNEL_F=[["Fiets staat al weken in de stalling","28dagen"],["Fiets is weggehaald","28dagen"],["Fiets is gestolen of beschadigd","schade"],["Klant wil opzeggen","abonnement"],["Klant is zijn tag of sleutel kwijt","abonnement"],["Klant wil een vaste plek","stallen"]];
+
+// Afbeeldingen koppelen
+T.forEach(t=>t.img="g-"+t.id);
+W.forEach(t=>{if(["voorwie","kosten","aanvragen","persoonlijk"].includes(t.id))t.img="w-"+t.id});
+F.forEach(t=>t.img=t.id==="geschil"?"g-geschil":"f-"+t.id);
+
+// Locatiemanager: wat mag je doen, en wanneer (alleen wat de voorwaarden toestaan)
+const L=[
+{id:"achtergelaten-auto",titel:"Achtergelaten auto",icon:"stappen",img:"g-regelsbreken",art:"Algemene Voorwaarden 2024, artikel 7 lid 1 sub l en artikel 8 lid 5 en 6",bron:BRON,
+ kort:"Een auto mag niet langer dan 28 dagen achter elkaar in de garage staan, tenzij de gemeente schriftelijk toestemming gaf.",
+ stappen:["Stuur de eigenaar een schriftelijk verzoek of ingebrekestelling om de auto weg te halen. Is het adres ondanks moeite niet te vinden? Dan mag je een duidelijk zichtbaar verzoek op de auto hangen.","Wacht 14 dagen na het verzoek.","Is de auto er nog? Dan mag de gemeente hem laten weghalen en ergens anders opslaan.","Na 6 weken na de ingebrekestelling niet opgehaald? Dan mag de gemeente de auto verkopen of vernietigen.","De eigenaar krijgt de opbrengst min parkeergeld, boete en kosten van weghalen en opslag. Is de opbrengst te laag, dan betaalt de eigenaar het verschil."],
+ letop:["Check eerst of er een schriftelijke toestemming is voor lang parkeren.","Bewaar een kopie of foto van het verzoek, met datum."],
+ woorden:"achtergelaten auto wrak lang 28 dagen weken weghalen slepen 14 dagen 6 weken verkopen vernietigen ingebrekestelling briefje"},
+{id:"wielklem",titel:"Wielklem plaatsen",icon:"klem",img:"g-wielklem",art:"Algemene Voorwaarden 2024, artikel 8 lid 4 en artikel 9",bron:BRON,
+ kort:"Je mag een wielklem plaatsen bij overtreding van de regels, schade of hinder die niet acceptabel is.",
+ stappen:["Stel vast wat er aan de hand is. Bijvoorbeeld dubbel parkeren, op een plek staan die niet voor dat voertuig is, vernieling, vandalisme of schade.","Plaats de wielklem.","De wielklem blijft zitten tot de klant alles heeft betaald wat hij moet betalen.","De kosten voor het weghalen van de wielklem zijn voor de eigenaar of parkeerder. Het bedrag staat in het Tarievenbesluit."],
+ letop:["Maak foto's van de situatie voordat je de klem plaatst.","De voorwaarden zeggen niet hoe de klant contact opneemt of betaalt. Volg daarvoor de interne werkinstructie."],
+ woorden:"wielklem klem dubbel parkeren invalideplek laadplek verkeerde plek vasthouden"},
+{id:"niet-betaald",titel:"Weggereden zonder betalen",icon:"euro",img:"g-betalen",art:"Algemene Voorwaarden 2024, artikel 6 lid 5 en artikel 11 lid 3",bron:BRON,
+ kort:"Wie wegrijdt zonder te betalen, krijgt een boete van €300 plus het maximale dagtarief.",
+ stappen:["Zoek het kenteken op. Kentekens worden 60 dagen bewaard, bij fraude langer.","De klant krijgt een boete van €300.","Daarbij komt het maximale dagtarief. Waren de echte parkeerkosten hoger, dan betaalt de klant die.","Ook schade kan worden verhaald. Moet de gemeente naar de rechter, dan komen griffiegeld en proceskosten erbij."],
+ letop:["Bij fraude mag je camerabeelden en kentekens langer bewaren om het af te handelen.","Wie de boete int en hoe, staat niet in de voorwaarden. Volg de interne werkinstructie."],
+ woorden:"niet betaald weggereden zonder betalen boete 300 fraude kenteken slagboom achter auto"},
+{id:"geen-bewijs",titel:"Klant heeft geen parkeerbewijs",icon:"doc",img:"g-overeenkomst",art:"Algemene Voorwaarden 2024, artikel 6 lid 4",bron:BRON,
+ kort:"Geen geldig parkeerbewijs? Dan betaalt de klant voor de tijd dat hij er stond.",
+ stappen:["Probeer de parkeertijd te vinden, bijvoorbeeld via de kentekenregistratie.","Is de tijd bekend: de klant betaalt voor die tijd.","Is de tijd niet te vinden: de klant betaalt het maximale dagtarief, voor elke dag dat de auto er volgens de gemeente stond."],
+ letop:["Dit is geen boete. De €300 geldt alleen als iemand wegrijdt zonder te betalen."],
+ woorden:"kaart kwijt parkeerbewijs verloren ticket kwijt dagtarief parkeertijd"},
+{id:"weigeren",titel:"Toegang weigeren of contract stoppen",icon:"slagboom",img:"g-toegang",art:"Algemene Voorwaarden 2024, artikel 5 lid 3 en artikel 8 lid 1 en 2",bron:BRON,
+ kort:"De gemeente mag een voertuig altijd de toegang weigeren. Bij ernstige overtredingen mag het contract meteen stoppen.",
+ stappen:["Weigeren mag altijd, bijvoorbeeld bij gevaarlijke stoffen of als het voertuig schade kan maken.","Het contract mag meteen stoppen, zonder waarschuwing, bij: abonnement doorgeven aan een ander, verkeersregels breken, slagboom of apparaten misbruiken, schade maken, gevaarlijke stoffen, alcohol of drugs, en te lang in de auto blijven.","Heeft een abonnementhouder een ingebrekestelling gekregen? Dan mag hij er niet in tot het is opgelost.","De abonnementhouder krijgt daar geen geld voor terug, ook niet voor parkeren ergens anders."],
+ letop:["Leg vast wat er gebeurde en wanneer.","Kosten van ingebrekestelling, deurwaarder of rechtszaak zijn voor de klant, behalve als de zaak onterecht was."],
+ woorden:"weigeren toegang blokkeren pas blokkeren contract stoppen ontbinden abonnement intrekken gevaarlijke stoffen alcohol drugs slapen"},
+{id:"verplaatsen",titel:"Voertuig verplaatsen",icon:"auto",img:"g-rijden",art:"Algemene Voorwaarden 2024, artikel 5 lid 4 en artikel 10 lid 6 en 7",bron:BRON,
+ kort:"Als het nodig is, mag de gemeente een voertuig in de garage verplaatsen of eruit halen.",
+ stappen:["Beoordeel of verplaatsen echt nodig is, bijvoorbeeld bij werkzaamheden of gevaar.","Doe het op een redelijke manier.","De gemeente is niet aansprakelijk voor het verplaatsen of weghalen.","De gemeente mag werkzaamheden in de garage doen zonder schadevergoeding te betalen."],
+ letop:["Maak foto's van het voertuig voor en na het verplaatsen."],
+ woorden:"verplaatsen wegzetten werkzaamheden onderhoud schoonmaak afsluiten verdieping"},
+{id:"incident",titel:"Schade, diefstal of incident",icon:"camera",img:"g-privacy",art:"Algemene Voorwaarden 2024, artikel 10 en artikel 11 lid 2 en 3",bron:BRON,
+ kort:"Camerabeelden worden normaal 7 dagen bewaard. Bij een incident mag je ze langer bewaren en doorgeven.",
+ stappen:["Zorg dat de beelden niet na 7 dagen worden gewist als er schade, vernieling, fraude, diefstal of een calamiteit is.","Beelden mogen naar de politie of een andere bevoegde instantie, en naar instanties die schade verhalen.","Ook kentekens mogen bij een incident langer bewaard worden dan 60 dagen.","Heeft een klant schade gemaakt aan de garage? Dan is de klant aansprakelijk en mag de gemeente de schade verhalen.","Schade of diefstal bij de klant zelf: de gemeente is niet aansprakelijk."],
+ letop:["Geef beelden alleen aan de instanties die de voorwaarden noemen. Volg de privacyregels (AVG).","Hoe je beelden veiligstelt, staat niet in de voorwaarden. Volg de interne werkinstructie."],
+ woorden:"schade diefstal incident camera beelden politie vernieling aanrijding calamiteit brand"},
+{id:"achtergelaten-fiets",titel:"Achtergelaten fiets",icon:"fiets",img:"f-regelsbreken",art:"Stallingsvoorwaarden fietsparkeren, artikel 5 en 7",bron:BRON_FIETS,
+ kort:"In een openbare fietsenstalling mag een fiets maximaal 28 dagen achter elkaar staan.",
+ stappen:["Staat de fiets er langer dan 28 dagen? Dan mag de gemeente hem weghalen. De kosten zijn voor de eigenaar.","Gaat het om een andere overtreding? Hang dan een duidelijk verzoek of sommatie aan de fiets.","Is de fiets 14 dagen na dat verzoek niet weg? Dan mag de gemeente hem weghalen en opslaan.","Meldt de eigenaar zich niet binnen 3 maanden na het weghalen? Dan mag de gemeente de fiets verkopen of vernietigen.","De ophaaltermijnen staan op rotterdam.nl/fietspunt."],
+ letop:["Een abonnementhouder in een niet-openbare stalling heeft een bewijs van de gemeente op zijn fiets. Check dat eerst."],
+ woorden:"fiets achtergelaten wrak 28 dagen weghalen fietspunt label 3 maanden"}
+];
+const SNEL_L=[["Auto staat al weken in de garage","achtergelaten-auto"],["Auto staat op een invalide- of laadplek","wielklem"],["Iemand reed weg zonder te betalen","niet-betaald"],["Klant heeft geen parkeerkaart","geen-bewijs"],["Er is schade of een inbraak","incident"],["We moeten een verdieping vrijmaken","verplaatsen"]];
+
+// Extra onderwerpen uit de usabilitytest
+T.push(
+{id:"in-auto",titel:"In de auto blijven zitten",icon:"auto",img:"g-verboden",art:"Artikel 7 lid 1 sub k en artikel 8 lid 1",
+ kort:"Na het parkeren stap je uit en verlaat je de garage. Langer in de auto blijven dan nodig mag niet.",
+ klant:"U mag hier niet in uw auto blijven zitten. Wilt u de garage verlaten? Anders mag de gemeente uw parkeercontract meteen stoppen.",
+ meer:["Dit staat in de lijst van wat niet mag.","Bij deze regel mag de gemeente het contract meteen stoppen, zonder eerst te waarschuwen.","Maak je je zorgen om iemand, bijvoorbeeld omdat die ziek of in nood lijkt? Volg dan de interne werkinstructie. Bij nood bel je 112."],
+ woorden:"slapen slaapt slaap overnachten wonen in auto zitten blijven zitten dakloos"},
+{id:"laadplek",titel:"Laadplek en invalideplek",icon:"verbod",img:"g-verboden",art:"Artikel 7 lid 1 sub m en artikel 9",
+ kort:"Een plek voor een speciaal voertuig is alleen voor dat voertuig. Bijvoorbeeld een invalideplek of een plek om elektrische auto's op te laden.",
+ klant:"Deze plek is bedoeld om elektrische auto's op te laden. Wilt u uw auto op een gewone plek zetten?",
+ meer:["Op een invalideplek mag je alleen staan als de plek voor jou bedoeld is.","Staat iemand op een plek die niet voor zijn voertuig is, dan mag de gemeente een wielklem plaatsen.","Of een elektrische auto die niet meer laadt mag blijven staan, staat niet letterlijk in de voorwaarden. Volg de borden in de garage."],
+ woorden:"laadpaal laadplek laden opladen elektrisch ev invalide invalideplek gehandicaptenplek speciale plek"},
+{id:"scooter",titel:"Motor, scooter en brommer",icon:"slagboom",img:"g-toegang",art:"Artikel 5 lid 2",
+ kort:"Per garage bepaalt de gemeente of motoren, scooters en brommers naar binnen mogen. Dat staat op het bord bij de ingang.",
+ klant:"Of u met uw scooter naar binnen mag, verschilt per garage. Bij deze garage staat het op het bord bij de ingang.",
+ meer:["De garage is vooral voor personenauto's en voertuigen die even groot en zwaar zijn.","Motoren, scooters en brommers: de gemeente beslist per garage.","Gewone fietsen horen in een fietsenstalling."],
+ woorden:"scooter brommer motor motorfiets snorfiets tweewieler fiets"},
+{id:"meeliften",titel:"Meerijden door de slagboom",icon:"euro",img:"g-betalen",art:"Artikel 3 lid 3, artikel 6 lid 5 en artikel 7 lid 1 sub b",
+ kort:"Je mag alleen in- en uitrijden met je eigen kaart of pas. Wie achter een ander aan wegrijdt zonder te betalen, krijgt €300 boete plus het dagtarief.",
+ klant:"U moet altijd zelf betalen en zelf door de slagboom gaan. Rijdt u weg zonder betalen, dan krijgt u een boete van €300 plus het dagtarief.",
+ meer:["Inrijden mag alleen met een geldige kaart of pas.","De slagboom met de hand openen of apparaten verkeerd gebruiken mag niet.","Weggereden zonder betalen: €300 boete plus het hoogste dagtarief, of de echte kosten als die hoger zijn."],
+ woorden:"meeliften meerijden achter aan achteraan slagboom bumperkleven doorrijden ontsnappen"}
+);
+SNEL.splice(0,SNEL.length,
+ ["Klant is zijn parkeerkaartje kwijt","betalen"],
+ ["Auto of busje is te hoog","toegang"],
+ ["Iemand slaapt in zijn auto","in-auto"],
+ ["Auto staat op een laadplek of invalideplek","laadplek"],
+ ["Klant wil met zijn scooter naar binnen","scooter"],
+ ["Iemand reed achter een ander door de slagboom","meeliften"],
+ ["Klant zegt dat zijn auto beschadigd is","schade"],
+ ["Klant vraagt naar de camera's","privacy"]);
+L.push({id:"termijnen",titel:"Alle termijnen op een rij",icon:"lijst",img:"w-kosten",art:"zie per regel",bron:BRON,termijnen:true,
+ kort:"Alle dagen, weken en bedragen uit de voorwaarden in één overzicht.",stappen:[],letop:[],woorden:"termijn termijnen overzicht dagen weken bedragen hoe lang"});
+SNEL_L.push(["Ik wil alle termijnen zien","termijnen"]);
+SNEL_F.unshift(["Mag een bakfiets, brommer of step erin?","wanneer"]);
+// Fiets: step en bron opzegformulier
+F.find(t=>t.id==="wanneer").meer.push("Over steps, e-steps en deelscooters staat niets in de stallingsvoorwaarden. Volg de borden in de stalling.");
+F.find(t=>t.id==="wanneer").woorden+=" step e-step deelstep deelscooter bakfiets brommer mag erin";
+F.find(t=>t.id==="schade").meer.push("Ook bij verplaatsen of weghalen door de gemeente betaalt de gemeente niet, behalve als de gemeente grove fouten maakte. Twijfel je? Laat de klant een klacht indienen via 14 010.");
+F.find(t=>t.id==="schade").woorden+=" beschadigd medewerker verplaatst lekke band";
+F.find(t=>t.id==="abonnement").bron2={naam:"Opzegformulier abonnement fietstrommel/fietsenstalling",url:"https://rotterdam.nl/media/641"};
+F.find(t=>t.id==="28dagen").woorden+=" weesfiets weesfietsen fiets weg kwijt opgehaald lekke band";
+tGet("privacy").meer.push("Beelden ouder dan 7 dagen zijn er meestal niet meer. Alleen als ze voor een incident op tijd zijn veiliggesteld, worden ze langer bewaard.");
+L.find(t=>t.id==="incident").letop.unshift("Wacht niet: na 7 dagen zijn beelden normaal gesproken weg. Stel ze bij een incident meteen veilig.");
+L.find(t=>t.id==="achtergelaten-fiets").woorden+=" weesfiets weesfietsen";
+L.find(t=>t.id==="niet-betaald").woorden+=" meeliften meerijden achter auto aan bumperkleven";
+W.find(t=>t.id==="kosten").kort="Prijs per maand in een garage (2026): bewoner €36,40, bedrijf beperkt €81,89, bedrijf onbeperkt €109,19. Beperkt betekent ma t/m vr van 7 tot 19 uur.";
+W.find(t=>t.id==="voorwie").woorden+=" vaste plek flat onder mijn flat eigen plek wijkgarage buurtgarage";
+W.find(t=>t.id==="persoonlijk").woorden+=" kenteken wijzigen andere auto nieuwe auto";
+
+// Termijnen op een rij
+const TERMIJNEN=[
+ ["7 dagen","Camerabeelden worden bewaard. Bij een incident langer.","Garage, art. 11"],
+ ["14 dagen","Na een schriftelijk verzoek: achtergelaten auto laten weghalen.","Garage, art. 8"],
+ ["14 dagen","Na een verzoek op de fiets: fiets laten weghalen.","Fiets, art. 7"],
+ ["14 dagen","Fietsabonnement niet betaald na de vervaldatum: toegang weigeren.","Fiets, art. 6"],
+ ["14 dagen","Fietsabonnement gratis stoppen na de start.","Opzegformulier fiets"],
+ ["5 werkdagen","Tag of sleutel inleveren na het einde van een fietsabonnement.","Fiets, art. 6"],
+ ["28 dagen","Langste tijd achter elkaar parkeren in een garage, tenzij er schriftelijke toestemming is.","Garage, art. 7"],
+ ["28 dagen","Langste tijd achter elkaar stallen in een openbare fietsenstalling.","Fiets, art. 5"],
+ ["1 maand","Opzegtermijn van een abonnement.","Abonnementspagina en opzegformulier"],
+ ["6 weken","Na de ingebrekestelling: niet opgehaalde auto verkopen of vernietigen.","Garage, art. 8"],
+ ["60 dagen","Kentekens worden bewaard. Bij een incident langer.","Garage, art. 11"],
+ ["3 maanden","Weggehaalde fiets niet opgehaald: verkopen of vernietigen.","Fiets, art. 5"],
+ ["15 km/u","Hoogste snelheid in de garage. Voetgangers gaan altijd voor.","Garage, art. 4"],
+ ["€300","Boete voor wegrijden zonder betalen, plus het dagtarief.","Garage, art. 6"],
+ ["€50","Tag of sleutel van een fietsabonnement niet op tijd ingeleverd.","Opzegformulier fiets"]
+];
+
+// Moeilijke woorden
+const WOORDEN={
+ "ingebrekestelling":"Een officiële brief waarin staat wat iemand moet doen en voor wanneer.",
+ "sommatie":"Een officieel verzoek om iets te doen, met een termijn.",
+ "aansprakelijk":"Moeten betalen voor de schade.",
+ "tarievenbesluit":"Het besluit van de gemeente met alle prijzen. Wordt elk jaar opnieuw vastgesteld.",
+ "dagtarief":"De prijs voor een hele dag parkeren.",
+ "abonnementhouder":"Iemand met een abonnement, dus een vaste klant.",
+ "parkeerder":"Iemand die parkeert zonder abonnement, dus een bezoeker.",
+ "staller":"Iemand die zijn fiets stalt zonder abonnement.",
+ "verhalen":"De kosten terugvragen aan wie de schade maakte.",
+ "griffiegeld":"Geld dat je betaalt om een rechtszaak te beginnen.",
+ "proceskosten":"Kosten van een rechtszaak.",
+ "calamiteit":"Een ernstig ongeluk of noodgeval, zoals brand.",
+ "avg":"De privacywet. Regelt hoe de gemeente met persoonsgegevens omgaat.",
+ "terrein":"Een parkeerplaats buiten, zonder dak.",
+ "tag":"Een klein sleutelhangertje waarmee je de stalling opent."
+};
+function woordenBlok(t){
+ const tekst=(t.titel+" "+t.kort+" "+(t.klant||"")+" "+(t.meer||[]).join(" ")+" "+(t.stappen||[]).join(" ")+" "+(t.letop||[]).join(" ")).toLowerCase();
+ const gevonden=Object.keys(WOORDEN).filter(w=>new RegExp("\\b"+w).test(tekst));
+ return gevonden.length?`<details class="woorden"><summary>Wat betekenen de moeilijke woorden?</summary><dl>${gevonden.map(w=>`<dt>${w[0].toUpperCase()+w.slice(1)}</dt><dd>${WOORDEN[w]}</dd>`).join("")}</dl></details>`:"";
+}
+
+// Contacten
+const CONTACT=`<details class="contact"><summary>Handige contacten</summary><dl>
+ <dt>Telefoon gemeente</dt><dd><span class="kopieer">14 010</span>. Voor vragen over abonnementen, klachten en meer.</dd>
+ <dt>Abonnement aanvragen, wijzigen of opzeggen</dt><dd>Online via Mijn Loket (met DigiD): <a href="https://www.rotterdam.nl/abonnement-parkeergarage-of-parkeerterrein-aanvragen" target="_blank" rel="noopener">abonnement parkeergarage</a></dd>
+ <dt>Weggehaalde fiets ophalen</dt><dd>Bij het Fietspunt: <a href="https://www.rotterdam.nl/fietspunt" target="_blank" rel="noopener">rotterdam.nl/fietspunt</a></dd>
+ <dt>Fietsabonnement opzeggen</dt><dd>E-mail <span class="kopieer">fietstrommels@rotterdam.nl</span> of het <a href="https://rotterdam.nl/media/641" target="_blank" rel="noopener">opzegformulier</a></dd>
+ <dt>Post over de garagevoorwaarden</dt><dd>Gemeente Rotterdam, Stadsbeheer, t.a.v. afdeling Parkeren, 3004 BC Rotterdam</dd>
+ <dt>Post over de fietsvoorwaarden</dt><dd>Gemeente Rotterdam, Stadsbeheer, Afdeling Parkeervoorzieningen, Postbus 10902, 3004 BC Rotterdam</dd>
+</dl></details>`;
+
+const KEUZE_UITLEG=`<details class="keuze"><summary>Welke kies ik?</summary><dl>
+ <dt>Parkeergarage</dt><dd>Openbare stadsgarage. Iedereen mag er parkeren en betaalt bij de automaat. Rotterdam heeft er 16.</dd>
+ <dt>Wijkstalling</dt><dd>Garage voor vaste gebruikers met een abonnement, zoals bewoners en bedrijven uit de buurt. Vaak onder een flat. Rotterdam heeft er 36.</dd>
+ <dt>Fietsenstalling</dt><dd>Gemeentelijke fietsenstallingen, buurtstallingen en fietstrommels.</dd>
+ <dt>Locatiemanager</dt><dd>Voor wie verantwoordelijk is voor een locatie: wat mag je doen, en wanneer?</dd>
+</dl></details>`;
+
+const SOORTEN={
+ garage:{naam:"Openbare parkeergarage",kort:"Parkeergarage",icon:"auto",lijst:T,snel:SNEL,versie:"Algemene Voorwaarden 2024",bron:BRON,pagina:PAGINA,
+  uitleg:"De regels van de openbare stadsgarages, voor bezoekers en abonnementhouders."},
+ wijk:{naam:"Wijkstallingsgarage",kort:"Wijkstalling",icon:"huis",lijst:W,snel:SNEL_W,versie:"Algemene Voorwaarden 2024 en de abonnementspagina",bron:BRON,pagina:BRON_WIJK,
+  uitleg:"Garages voor vaste gebruikers met een abonnement. Dezelfde voorwaarden als de openbare garages, plus de regels voor het abonnement."},
+ fiets:{naam:"Fietsenstalling",kort:"Fietsenstalling",icon:"fiets",lijst:F,snel:SNEL_F,versie:"Algemene stallingsvoorwaarden fietsparkeren (geen versiedatum vermeld)",bron:BRON_FIETS,pagina:"https://www.rotterdam.nl/fietsparkeren",
+  uitleg:"De regels van de gemeentelijke fietsenstallingen, buurtstallingen en fietstrommels."},
+ loc:{naam:"Locatiemanager",kort:"Locatiemanager",icon:"sleutel",lijst:L,snel:SNEL_L,versie:"Algemene Voorwaarden 2024 en stallingsvoorwaarden fietsparkeren",bron:BRON,pagina:PAGINA,
+  uitleg:"Wat mag jij als locatiemanager doen, en wanneer? Stap voor stap, volgens de voorwaarden. Interne werkinstructies gaan altijd voor de praktische uitvoering."}
+};
+
+const app=document.getElementById("app"), terug=document.getElementById("terug");
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let zoekterm="", soort="garage";
+try{zoekterm=sessionStorage.getItem("zoek")||"";const s=localStorage.getItem("soort");if(SOORTEN[s])soort=s}catch(e){}
+const S=()=>SOORTEN[soort];
+
+function bronBlok(t){const s=S(),url=t.bron||s.bron;
+ return `<div class="bron"><span><b>Bron:</b> ${t.bron&&t.bron!==s.bron||soort==="loc"?"":s.versie+", "}${t.art}.</span><a href="${url}" target="_blank" rel="noopener">Bekijk de originele tekst</a>${t.bron2?`<a href="${t.bron2.url}" target="_blank" rel="noopener">${t.bron2.naam}</a>`:""}</div>`}
+
+function start(){
+ terug.hidden=true; const s=S();
+ app.innerHTML=`
+ <div class="soorten" role="tablist" aria-label="Kies de soort stalling">${Object.entries(SOORTEN).map(([k,v])=>`<button role="tab" class="soort" aria-selected="${k===soort}" data-soort="${k}">${svg(v.icon)}<span>${v.kort}</span></button>`).join("")}</div>
+ ${KEUZE_UITLEG}
+ <h1>${s.naam}</h1>
+ <p class="leeg">${s.uitleg}</p>
+ <div class="zoek"><label for="zoekveld" class="label">Zoek in alle regels</label>
+  <input id="zoekveld" type="search" placeholder="Typ gewoon je vraag, bijv. kaartje kwijt" value="${esc(zoekterm)}" autocomplete="off"></div>
+ <div id="resultaat"></div>
+ <section class="sectie" id="snel"><span class="label">${soort==="loc"?"Wat doe ik als…":"Wat zeg ik tegen de klant?"}</span>
+  ${s.snel.map(([v,id])=>`<button class="vraag" data-id="${id}">${v}</button>`).join("")}</section>
+ <section class="sectie" id="alle"><span class="label">Alle onderwerpen</span>
+  <div class="tegels">${s.lijst.map(t=>`<button class="tegel" data-id="${t.id}">${t.img?`<img class="duim" src="img/${t.img}.webp" alt="" loading="lazy">`:svg(t.icon)}<b>${t.titel}</b></button>`).join("")}</div></section>
+ <button class="vraag" data-ga="loc-termijnen">Alle termijnen en bedragen op een rij</button>
+ ${CONTACT}
+ <div class="disclaimer">Dit is een hulpmiddel in simpele taal. Bij twijfel geldt altijd de originele tekst van de voorwaarden.</div>
+ <p class="voet">Bron: ${s.versie} · gecontroleerd op 20 november 2026 · <a href="${s.pagina}" target="_blank" rel="noopener" style="color:var(--groen)">rotterdam.nl</a><br>BinnenBeter is een prototype van team Makers, afdeling Parkeren. Het is geen officiële website van de gemeente.</p>`;
+ const veld=document.getElementById("zoekveld");
+ veld.addEventListener("input",()=>{zoekterm=veld.value;try{sessionStorage.setItem("zoek",zoekterm)}catch(e){}toonZoek()});
+ toonZoek();
+}
+
+// Zoeken: gewone zinnen, synoniemen, alle soorten, beste eerst
+const STOP=new Set("ik je jij u de het een mijn zijn zijn haar wat hoe mag mogen is er in op van voor met wil wilt kan kun waarom wanneer en of die dat te al niet naar hij zij we wij ze bij om nog wel dan hun deze dit als wordt worden moet moeten heeft hebben heb doe doen ik's klant iemand".split(" "));
+const SYN={kaartje:"parkeerbewijs kaart",ticket:"parkeerbewijs kaart",kwijt:"parkeerbewijs verloren",verloren:"parkeerbewijs",
+ kras:"schade",krassen:"schade",deuk:"schade",beschadigd:"schade",gestolen:"diefstal",inbraak:"diefstal",ingebroken:"diefstal",
+ slapen:"in auto blijven",slaapt:"in auto blijven",laadpaal:"laadplek",opladen:"laadplek",elektrische:"laadplek",
+ camerabeelden:"camera beelden",beelden:"camera",busje:"hoogte",hoog:"hoogte",bus:"hoogte",
+ meeliften:"slagboom betalen",bumperkleven:"slagboom",achteraan:"slagboom",
+ weesfiets:"28 dagen fiets",weesfietsen:"28 dagen fiets",step:"step",steps:"step",
+ flat:"vaste plek wijkgarage",prijs:"kosten tarief",kost:"kosten tarief",wijzigen:"wijzigen",
+ klacht:"klacht geschil 14 010",klagen:"klacht",boete:"boete 300",wegslepen:"weghalen",slepen:"weghalen",
+ sleutel:"tag sleutel",achter:"meeliften meerijden",weken:"achtergelaten 28",maanden:"achtergelaten 28",doorgegeven:"doorgeven uitlenen persoonlijk",doorgeven:"uitlenen persoonlijk",buurman:"uitlenen persoonlijk",buren:"uitlenen persoonlijk",kenteken:"kenteken",pas:"pas toegangsmiddel",english:"",tourist:""};
+function woordenVan(q){
+ const ruw=q.toLowerCase().replace(/[^\p{L}\p{N}€ ]/gu," ").split(/\s+/).filter(w=>w&&!STOP.has(w));
+ const uit=new Set(); ruw.forEach(w=>{uit.add(w);(SYN[w]||"").split(" ").filter(Boolean).forEach(s=>uit.add(s))});
+ return {ruw,alle:[...uit]};
+}
+function score(t,woorden){
+ const titel=t.titel.toLowerCase(), tekst=(t.titel+" "+t.kort+" "+(t.klant||"")+" "+(t.meer||t.stappen||[]).join(" ")+" "+t.woorden).toLowerCase();
+ let s=0; woorden.forEach(w=>{const stam=w.length>5?w.slice(0,w.length-2):w;
+  if(titel.includes(stam))s+=3; else if(t.woorden.toLowerCase().includes(stam))s+=2; else if(tekst.includes(stam))s+=1});
+ return s;
+}
+function toonZoek(){
+ const r=document.getElementById("resultaat"), q=zoekterm.trim();
+ document.getElementById("snel").hidden=!!q; document.getElementById("alle").hidden=!!q;
+ if(!q){r.innerHTML="";return}
+ const {alle}=woordenVan(q);
+ let hits=[]; Object.entries(SOORTEN).forEach(([k,v])=>v.lijst.forEach(t=>{if(t.termijnen)return;const sc=score(t,alle)+(k===soort?1:0);if(sc>=2)hits.push({k,t,sc})}));
+ hits.sort((a,b)=>b.sc-a.sc); hits=hits.slice(0,6);
+ r.innerHTML=hits.length?`<div class="sectie"><span class="label">Beste antwoorden</span>${hits.map(({k,t})=>`<button class="vraag" data-ga="${k}-${t.id}"><span><span class="soortlabel">${SOORTEN[k].kort}</span>${t.titel}<br><span style="font-weight:400;color:var(--fg-zacht)">${t.kort}</span></span></button>`).join("")}</div>`
+  :`<div class="sectie"><p class="leeg">Niets gevonden voor "${esc(q)}". Probeer één woord, zoals boete, schade, opzeggen of kenteken. Staat het er niet in? Bel 14 010 of kijk in de originele voorwaarden.</p>${S().snel.slice(0,4).map(([v,id])=>`<button class="vraag" data-id="${id}">${v}</button>`).join("")}</div>`;
+}
+
+function termijnenPagina(t){
+ return `<ul class="termijnen">${TERMIJNEN.map(([a,b,c])=>`<li><span class="getal">${a}</span><span>${b}<br><small>${c}</small></span></li>`).join("")}</ul>
+ <div class="bron"><span><b>Bronnen:</b> Algemene Voorwaarden 2024, stallingsvoorwaarden fietsparkeren, abonnementspagina en opzegformulier fiets.</span><a href="${BRON}" target="_blank" rel="noopener">Algemene Voorwaarden 2024</a><a href="${BRON_FIETS}" target="_blank" rel="noopener">Stallingsvoorwaarden fietsparkeren</a></div>`;
+}
+
+function onderwerp(id){
+ const t=S().lijst.find(x=>x.id===id); if(!t){start();return}
+ terug.hidden=false;
+ if(t.termijnen){app.innerHTML=`<span class="label">Overzicht</span><h1>${t.titel}</h1><p class="kort">${t.kort}</p>${termijnenPagina(t)}`;window.scrollTo(0,0);return}
+ app.innerHTML=`
+ <span class="label">${soort==="loc"?S().naam:S().naam+" · "+t.art}</span>
+ <h1>${t.titel}</h1>
+ <p class="kort">${t.kort}</p>
+ ${t.klant?`<div class="klant"><span class="label">Zo zeg je het tegen de klant</span><p>"${t.klant}"</p></div>`:""}
+ ${t.img?`<div class="beeld"><img src="img/${t.img}.webp" alt="Illustratie: ${t.titel}"></div>`:""}
+ ${t.stappen?`<section class="sectie"><span class="label">Stap voor stap</span><ol class="stappen">${t.stappen.map(m=>`<li><span>${m}</span></li>`).join("")}</ol></section>
+ <div class="letop"><span class="label" style="color:inherit">Let op</span><ul>${t.letop.map(m=>`<li>${m}</li>`).join("")}</ul></div>`:""}
+ ${t.meer?`<button class="meer" id="meerknop" aria-expanded="false">Meer uitleg</button>
+ <ul class="punten" id="meer" hidden>${t.meer.map(m=>`<li>${m}</li>`).join("")}</ul>`:""}
+ ${woordenBlok(t)}
+ ${bronBlok(t)}`;
+ const k=document.getElementById("meerknop"),m=document.getElementById("meer");
+ if(k)k.onclick=()=>{m.hidden=!m.hidden;k.setAttribute("aria-expanded",!m.hidden);k.textContent=m.hidden?"Meer uitleg":"Minder uitleg"};
+ window.scrollTo(0,0);
+}
+
+
+// Ideeën / beta: sneak previews met voorbeelddata. Niets hiervan is gekoppeld.
+const BETA=[
+{id:"teamleider",titel:"Bericht van de teamleider",icon:"doc",
+ kort:"Eén vastgezet bericht bovenaan de app. Bijvoorbeeld over werkzaamheden, drukte of een nieuwe afspraak.",
+ nodig:["Een eenvoudige plek waar de teamleider het bericht typt, bijvoorbeeld een SharePoint-lijst.","Afspraak wie berichten mag plaatsen en hoe lang ze blijven staan."],
+ mock:()=>`<div class="m-bericht"><div class="m-kop"><span class="m-avatar">TL</span><span><b>Teamleider garages</b><br><small>Maandag 7:45 · tot en met vrijdag</small></span></div>
+ <p><b>Deze week liftonderhoud in Garage A.</b> Lift 2 is dicht van dinsdag tot donderdag. Wijs klanten met kinderwagen of rolstoel op lift 1 bij de noorduitgang.</p>
+ <button class="m-knop" type="button" data-toast>Gelezen</button></div>`},
+{id:"nieuws",titel:"Nieuwsupdates",icon:"lijst",
+ kort:"Kort nieuws van de afdeling Parkeren, met de laatste wijzigingen in regels en tarieven bovenaan.",
+ nodig:["Koppeling met het nieuws op intranet of de maandelijkse nieuwsbrief van Parkeren.","Labels zoals Regels, Tarieven en Locaties, zodat je snel ziet wat voor jou geldt."],
+ mock:()=>`<ul class="m-nieuws">
+ <li><span class="m-tag">Tarieven</span><b>Nieuwe tarieven per 1 januari</b><small>Wat verandert er voor bezoekers en abonnementhouders?</small></li>
+ <li><span class="m-tag">Locaties</span><b>Garage B 's nachts dicht in december</b><small>Van 1 tot 6 uur, door werkzaamheden.</small></li>
+ <li><span class="m-tag">Regels</span><b>Voorwaarden aangepast</b><small>Wat er anders is, in drie zinnen.</small></li></ul>`},
+{id:"melding",titel:"Melding maken",icon:"camera",
+ kort:"Vanaf de vloer meteen een melding doen in het interne meldingensysteem. Met foto en locatie, in één minuut.",
+ nodig:["Koppeling met het interne meldingensysteem, bijvoorbeeld via Power Automate.","Vaste lijst met locaties en soorten meldingen.","Afspraken over foto's met personen of kentekens (privacy)."],
+ mock:()=>`<form class="m-form" data-mockform>
+ <label for="m-loc">Locatie</label><select id="m-loc"><option>Garage A, niveau -1</option><option>Garage B, ingang</option><option>Fietsenstalling C</option></select>
+ <label>Wat is er aan de hand?</label>
+ <div class="m-chips"><span class="m-chip aan">Slagboom kapot</span><span class="m-chip">Lekkage</span><span class="m-chip">Vervuiling</span><span class="m-chip">Verlichting</span><span class="m-chip">Achtergelaten voertuig</span></div>
+ <label for="m-toel">Toelichting</label><textarea id="m-toel" rows="2">Slagboom uitrit blijft open staan.</textarea>
+ <span class="m-foto">+ Foto toevoegen</span>
+ <button class="m-knop" type="submit">Melding versturen</button></form>`},
+{id:"schoon",titel:"Schoonmaakcijfers",icon:"regels",
+ kort:"Per locatie zien hoe schoon het is, op basis van de schouwen. Met het niveau van de laatste schouw en de trend.",
+ nodig:["De schouwdata uit MS Forms, die we al gebruiken voor het schoonmaakoverleg.","Afspraak welk niveau de norm is, bijvoorbeeld minimaal B op de beeldmeetlat."],
+ mock:()=>{const L=[["Garage A","A",[78,82,85,80,88,91]],["Garage B","B",[70,66,72,75,71,74]],["Fietsenstalling C","C",[60,58,55,62,57,52]]];
+ return `<div class="m-schoon">${L.map(([n,niv,r])=>`<div class="m-loc"><div class="m-rij"><b>${n}</b><span class="m-niv niv-${niv}">Niveau ${niv}</span></div>
+ <div class="m-bars" aria-label="Laatste 6 weken">${r.map(v=>`<span style="height:${Math.max(8,(v-40)/60*100)}%" title="${v}%"></span>`).join("")}</div>
+ <small>${r[r.length-1]}% van de punten op niveau B of beter · laatste 6 weken</small></div>`).join("")}</div>`}},
+{id:"contacten",titel:"Wie bel ik?",icon:"sleutel",
+ kort:"Per locatie de juiste contacten: locatiemanager, storingsdienst, schoonmaak, beveiliging, en wanneer je de politie belt.",
+ nodig:["Een contactlijst per locatie, beheerd door de locatiemanagers.","Afspraak of telefoonnummers alleen intern zichtbaar zijn."],
+ mock:()=>`<div class="m-contact"><div class="m-rij"><b>Garage A</b><small>dag · nacht</small></div>
+ <ul><li><span>Locatiemanager</span><b>06 ** ** ** **</b></li><li><span>Storing slagboom of automaat</span><b>0800 ** ** **</b></li><li><span>Schoonmaak</span><b>010 *** ** **</b></li><li><span>Nood</span><b>112</b></li></ul></div>`},
+{id:"brieven",titel:"Modelbrieven",icon:"doc",
+ kort:"Een kant-en-klaar briefje voor een achtergelaten auto of fiets. Datum en termijn vullen zich zelf in.",
+ nodig:["Goedgekeurde teksten van juridische zaken.","Keuze: printen op locatie of mailen naar de eigenaar."],
+ mock:()=>`<div class="m-brief"><small>Verzoek om uw voertuig te verwijderen</small>
+ <p>Uw voertuig staat langer dan 28 dagen in deze garage. Dat mag niet volgens onze voorwaarden. Haal het voertuig weg vóór <b>4 december</b>. Daarna kan de gemeente het laten weghalen.</p>
+ <button class="m-knop" type="button" data-toast>Brief maken</button></div>`},
+{id:"engels",titel:"In het Engels",icon:"lijst",
+ kort:"Een knop NL / EN, zodat je de klantzin ook in het Engels kunt laten zien. Handig bij toeristen in de fietsenstalling.",
+ nodig:["Vertaling van de klantzinnen, gecontroleerd door iemand die goed Engels kent."],
+ mock:()=>`<div class="m-taal"><div class="m-toggle"><span>NL</span><span class="aan">EN</span></div>
+ <p>"Bicycles may stay here for a maximum of 28 days. After that, the municipality can remove them."</p></div>`}
+];
+
+function betaOverzicht(){
+ terug.hidden=false;
+ app.innerHTML=`<span class="label">Ideeën · beta</span><h1>Wat kan er later bij?</h1>
+ <p class="leeg">Dit zijn ideeën met voorbeelddata. Niets hiervan werkt al en niets wordt verstuurd. Kijk rond en laat weten wat jij handig vindt.</p>
+ <div class="tegels">${BETA.map(b=>`<button class="tegel beta-tegel" data-ga="beta-${b.id}">${svg(b.icon)}<b>${b.titel}</b><small>${b.kort}</small></button>`).join("")}</div>
+ <div class="disclaimer">Concept. De voorbeelden gebruiken verzonnen locaties, namen en cijfers.</div>`;
+ window.scrollTo(0,0);
+}
+function betaDetail(id){
+ const b=BETA.find(x=>x.id===id); if(!b){betaOverzicht();return}
+ terug.hidden=false;
+ app.innerHTML=`<span class="label">Ideeën · beta</span><h1>${b.titel}</h1><p class="kort">${b.kort}</p>
+ <div class="mock" aria-label="Voorbeeld van hoe het eruit kan zien">${b.mock()}</div>
+ <section class="sectie"><span class="label">Wat is ervoor nodig?</span><ul class="punten">${b.nodig.map(n=>`<li>${n}</li>`).join("")}</ul></section>
+ <button class="vraag" data-ga="beta">Alle ideeën</button>`;
+ window.scrollTo(0,0);
+}
+function toast(t){let el=document.getElementById("toast");if(!el){el=document.createElement("div");el.id="toast";el.setAttribute("role","status");document.body.appendChild(el)}
+ el.textContent=t;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(()=>{el.hidden=true},2600)}
+app.addEventListener("submit",e=>{if(e.target.matches("[data-mockform]")){e.preventDefault();toast("Dit is een voorbeeld. Er is niets verstuurd.")}});
+app.addEventListener("click",e=>{const c=e.target.closest(".m-chip");if(c){c.parentElement.querySelectorAll(".m-chip").forEach(x=>x.classList.remove("aan"));c.classList.add("aan")}
+ if(e.target.closest("[data-toast]"))toast("Dit is een voorbeeld. Er gebeurt nog niets.")});
+
+// hash: "<soort>" of "<soort>-<onderwerp>"
+function route(){
+ const h0=location.hash.slice(1); if(h0==='beta'){betaOverzicht();return} if(h0.startsWith('beta-')){betaDetail(h0.slice(5));return}
+ const h=location.hash.slice(1), d=h.indexOf("-"), k=d<0?h:h.slice(0,d), id=d<0?"":h.slice(d+1);
+ if(SOORTEN[k]){soort=k;try{localStorage.setItem("soort",k)}catch(e){}}
+ id?onderwerp(id):start();
+}
+app.addEventListener("click",e=>{
+ const so=e.target.closest("[data-soort]"); if(so){zoekterm="";try{sessionStorage.setItem("zoek","")}catch(x){}location.hash=so.dataset.soort;return}
+ const ga=e.target.closest("[data-ga]"); if(ga){location.hash=ga.dataset.ga;return}
+ const b=e.target.closest("[data-id]"); if(b)location.hash=soort+"-"+b.dataset.id});
+terug.onclick=()=>{location.hash=soort};
+window.addEventListener("hashchange",route);
+route();
+</script>
+
+</body>
+</html>
